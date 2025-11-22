@@ -1,15 +1,18 @@
 # docker-compose.yml
+version: '3.0'
 services:
   web:
-    build: .
+    build: 
+      context: .
+      dockerfile: Dockerfile
     container_name: lighthouse_web
-    ports:
-      - "8000:8000"
+    expose:
+      - "8000"
     env_file:
       - .env
-    command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - ./src:/app/src
+      - staticfiles:/app/staticfiles
     depends_on:
       db:
         condition: service_healthy
@@ -31,6 +34,21 @@ services:
       timeout: 5s
       retries: 5  
       start_period: 10s
-
+  nginx:
+    build: 
+      context: ./nginx
+      dockerfile: Dockerfile
+    container_name: lighthouse_nginx
+    ports:
+      - "8000:80"
+    volumes:
+      - staticfiles:/usr/share/nginx/html/static
+      - nginx_logs:/var/log/nginx
+    depends_on:
+      - web
+    restart: always
+    
 volumes:
+  staticfiles:
+  nginx_logs:
   postgres_db: 
