@@ -1,0 +1,69 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Lighthouse Monitor</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+
+    <div class="header-section">
+        <img src="{% static 'img/logo.png' %}" alt="Lighthouse Logo" class="site-logo">
+        <div class="header-text">
+            <h1>Lighthouse Monitor</h1>
+            <i><p class="version">v.2.0.2025</p></i>
+        </div>
+    </div>
+
+    <div class="monitor-grid">
+        {% for site in sites %}
+        <div class="monitor-card">
+            <h5>Checking: <a href="{{ site.url }}" target="_blank" style="color: #61dafb;">{{ site.url }}</a></h5>
+            
+            <div class="status-indicator">
+                {% if site.is_up %}
+                    <span class="dot green"></span> 
+                    <div>
+                        <strong>ONLINE</strong><br>
+                        <small>Response time: {{ site.response_time }} s</small>
+                    </div>
+                {% else %}
+                    <span class="dot red"></span>
+                    <div>
+                        <strong>OFFLINE</strong><br>
+                        <small>Status: {{ site.status_code }}</small>
+                    </div>
+                {% endif %}
+            </div>
+
+            <p style="margin-bottom: 5px; opacity: 0.7;">Latest checks:</p>
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Status</th>
+                        <th>Resp. Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in site.history %}
+                    <tr>
+                        <td>{{ log.timestamp|date:"H:i:s" }}</td>
+                        <td>
+                            {% if log.is_up %}
+                                <span style="color:#28a745">{{ log.status }}</span>
+                            {% else %}
+                                <span style="color:#dc3545">{{ log.status }}</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ log.response_time|floatformat:3 }}s</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endfor %}
+    </div>
+
+</body>
+</html>
