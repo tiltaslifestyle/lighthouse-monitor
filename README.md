@@ -4,6 +4,7 @@
 ![Gunicorn](https://img.shields.io/badge/gunicorn-%298729.svg?style=for-the-badge&logo=gunicorn&logoColor=white)
 ![Django](https://img.shields.io/badge/django-%23092E20.svg?style=for-the-badge&logo=django&logoColor=white)
 ![Postgres](https://img.shields.io/badge/postgres-%23316192.svg?style=for-the-badge&logo=postgresql&logoColor=white)
+![GitHub Actions](https://img.shields.io/badge/github%20actions-%232671E5.svg?style=for-the-badge&logo=githubactions&logoColor=white)
 
 **Lighthouse** is a containerized website monitoring application built with Django, served via Gunicorn, and proxied by Nginx. The project demonstrates a full production-ready DevOps pipeline using Docker Compose to orchestrate web, database, and proxy services.
 
@@ -55,6 +56,17 @@ User (Browser)
 - **Network Isolation:** Services communicate through a private internal Docker network; only Nginx is exposed to the host.
 - **Container Optimization:** Uses `slim` Python images to minimize attack surface and image size.
 - **Reverse Proxy:** Nginx acts as the single entry point, protecting the application server from direct internet traffic.
+
+## CI Pipeline (GitHub Actions)
+
+This project utilizes a **Continuous Integration (CI)** pipeline to ensure code quality and security standards.
+Every push to the `main` branch triggers an automated workflow defined in `.github/workflows/ci.yml`.
+
+**Pipeline Steps:**
+1.  **Build:** Assembles Docker images for Django and Nginx services.
+2.  **Test:** Runs Django unit tests inside an isolated container using a custom `entrypoint.sh`.
+3.  **Smoke Test:** Spins up the full stack (`docker-compose up -d`) and verifies the web service is responding.
+4.  **Security Scan:** Uses **Trivy** to scan Docker images for OS-level vulnerabilities (CVEs).
 
 ## Prerequisites
 To run this project, you only need Docker installed on your machine.
