@@ -7,10 +7,13 @@ def index(request):
     targets = [
         "https://google.com",
         "https://youtube.com",
-        "https://imdb.com",
-        "https://canva.com",  
+        "https://microsoft.com",
+        "https://www.apple.com",  
         "https://store.steampowered.com",
-        "https://github.com"
+        "https://github.com",
+        "https://stackoverflow.com",
+        "https://archlinux.org"
+
     ]
 
     results_data = []
