@@ -5,6 +5,7 @@ services:
     build: 
       context: .
       dockerfile: Dockerfile
+    image: lighthouse_web:latest
     container_name: lighthouse_web
     expose:
       - "8000"
@@ -38,6 +39,7 @@ services:
     build: 
       context: ./nginx
       dockerfile: Dockerfile
+    image: lighthouse_nginx:latest
     container_name: lighthouse_nginx
     ports:
       - "8000:80"

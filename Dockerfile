@@ -23,3 +23,6 @@ EXPOSE 8000
 # Entrypoint shell scripts to be executed
 COPY entrypoint.sh .
 ENTRYPOINT ["./entrypoint.sh"]
+
+# Start the Django application using Gunicorn
+CMD ["gunicorn", "lighthouse.wsgi:application", "--bind", "0.0.0.0:8000"]

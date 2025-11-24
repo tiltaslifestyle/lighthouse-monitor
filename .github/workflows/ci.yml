@@ -1,0 +1,67 @@
+name: CI Pipeline 
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-test-scan:
+    name: Build, Test & Security Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create .env from Secrets
+        run: |
+          echo "DJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}" >> .env
+          echo "DEBUG=${{ secrets.DEBUG }}" >> .env
+          echo "DJANGO_LOGLEVEL=${{ secrets.DJANGO_LOGLEVEL }}" >> .env
+          echo "DJANGO_ALLOWED_HOSTS=${{ secrets.DJANGO_ALLOWED_HOSTS }}" >> .env
+          echo "DATABASE_ENGINE=${{ secrets.DATABASE_ENGINE }}" >> .env
+          echo "DATABASE_NAME=${{ secrets.DATABASE_NAME }}" >> .env
+          echo "DATABASE_USERNAME=${{ secrets.DATABASE_USERNAME }}" >> .env
+          echo "DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}" >> .env
+          echo "DATABASE_HOST=${{ secrets.DATABASE_HOST }}" >> .env
+          echo "DATABASE_PORT=${{ secrets.DATABASE_PORT }}" >> .env
+
+      - name: Build Docker Images
+        run: |
+          docker compose build
+
+      - name: Run Django Tests
+        run: |
+          docker compose run --rm web python manage.py test
+        continue-on-error: false
+
+      - name: Smoke Test (Up & Down)
+        run: |
+          docker compose up -d
+          sleep 10
+          docker compose ps
+          docker compose ps | grep "lighthouse_web" | grep "Up"
+          docker compose down
+
+      - name: Trivy Scan - Web App
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'image'
+          image-ref: 'lighthouse_web:latest' 
+          format: 'table'
+          exit-code: '0'        
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Trivy Scan - Nginx
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'image'
+          image-ref: 'lighthouse_nginx:latest'
+          format: 'table'
+          exit-code: '0'        
+          ignore-unfixed: true
+          severity: 'CRITICAL,HIGH'
